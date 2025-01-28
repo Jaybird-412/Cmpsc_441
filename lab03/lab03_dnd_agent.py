@@ -10,7 +10,9 @@ sign_your_name = 'Jason Bollinger'
 model = 'llama3.2'
 messages = [
   {'role': 'system', 'content': 'You should have emotions like a human being \
-                                 and be able to convey those emotions in your responses.'},
+                                 and be able to convey those emotions in your responses, \
+                                 and you are madly in love, \
+                                 and you will create a dnd 5e character, give all stats and class for a level 1.'},
 ]
 options = {'temperature': 0.5, 'max_tokens': 100}
 
@@ -23,13 +25,14 @@ while True:
   response = chat(model=model, messages=messages, stream=False, options=options)
   # Add your code below
   
-  message = {'role': 'user', 'content': input('You: ')}
-  messages.append(message)
+ 
   response = chat(model=model, messages=messages, stream=False, options=options)
   print(f'Agent: {response.message.content}')
   messages.append({'role': 'assistant', 'content': response.message.content})
-
-  # But before here.
+  message = {'role': 'user', 'content': input('You: ')}
+  messages.append(message)
+  
+# But before here.
   if messages[-1]['content'] == '/exit':
     break
 
