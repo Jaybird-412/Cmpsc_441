@@ -25,6 +25,19 @@ def roll_for(skill, dc, player):
 def process_response(self, response):
     # Fill out this function to process the response from the LLM
     # and make the function call 
+
+    if response.message.tool_calls:
+        #extract the tool call information
+        tool_call = response.message.tool_calls[0]
+        function_name = tool_call.function.name
+        arguments = tool_call.function.arguments
+        
+        #process the function call and get the result
+        result = process_function_call(tool_call.function)
+        
+        #append the result as a response to the tool call
+        response.message.tool_calls[0].content = result
+    
     return response
 
 run_console_chat(template_file='lab05/lab05_dice_template.json',
