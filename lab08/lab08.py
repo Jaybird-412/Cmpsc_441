@@ -29,7 +29,11 @@ class OllamaEmbeddingFunction:
     
     def __call__(self, input: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts using Ollama"""
-        pass
+        response = ollama.embed(model=self.model_name, input=input)  #ensure text is a string
+        # embeddings.append(response["embeddings"])
+
+        return response["embeddings"]
+
 
 
 def load_documents(data_dir: str) -> Dict[str, str]:
@@ -96,6 +100,8 @@ def setup_chroma_db(chunks: List[Dict[str, Any]], collection_name: str = "dnd_kn
     except:
         pass
     
+    
+
     collection = client.create_collection(
         name=collection_name,
         embedding_function=embedding_function
@@ -116,7 +122,13 @@ def retrieve_context(collection: chromadb.Collection, query: str, n_results: int
     """
     Retrieve relevant context from ChromaDB based on the query
     """
-    pass
+    embedding_function = OllamaEmbeddingFunction()
+    query_embedding = embedding_function([query])[0]  #generate embedding for the query
+    results = collection.query(query_embeddings=[query_embedding], n_results=n_results)
+
+    ##return results["documents"]
+    return [doc for sublist in results["documents"] for doc in sublist]
+
 
 
 
@@ -127,6 +139,8 @@ def generate_response(query: str, contexts: List[str], model: str = "mistral:lat
     # Create prompt with context
     context_text = "\n\n".join(contexts)
     
+    print("Contexts used in prompt:", context_text)  #add to debug
+
     prompt = f"""You are a helpful assistant for Dungeons & Dragons players.
     Use the following information to answer the question.
     
@@ -200,7 +214,7 @@ def main():
     for query in queries:
         # Retrieve context
         contexts = retrieve_context(collection, query)
-        
+
         # Generate response
         response = generate_response(query, contexts, model=llm_model)
         
