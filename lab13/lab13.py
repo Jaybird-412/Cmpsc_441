@@ -4,9 +4,51 @@ import gymnasium as gym
 from types import MethodType
 
 # TODO Write your reward functions here
-def myreward(state):
-    # Custom reward function
-    pass
+def myreward1(state):
+    # Custom reward function 1
+    # this is basic and only rewards for reaching the goal with no steps inbetween being rewarded
+    if state == 15:
+        return 10
+    else: 
+        return 0
+
+def myreward2(state):
+    # Custom reward function 2
+    # this function will reward for reaching new states and penalize for going in reverse and hitting old states.
+    visited_states = set()
+
+    if state in visited_states:
+        return -0.5
+    else:
+        visited_states.add(state)
+        return 0.25
+
+
+def myreward3(state):
+    # Custom reward function 3
+    # this will keep track of how close it is to the end goal and reward for getting closer to the goal for each step, and penalizes for getting farther away
+    row, col = divmod(state, 4) #unpacking matrix
+    goal_row, goal_col = 3,3
+    distance = abs(goal_row - row) + abs(goal_col - col)
+    max_distance = 6
+
+    reward = 1 - (distance/max_distance) #closer means better reward
+
+    return reward
+
+def myreward4(state):
+    # Custom reward function 4
+    # this function will reward for reaching new states and penalize for going in reverse and hitting old states. This will also give a bonus for hitting the goal. This is v2 of reward2
+    visited_states = set()
+
+    if state in visited_states:
+        return -0.5
+    elif state == 15:
+        return 10
+    else:
+        visited_states.add(state)
+        return 0.25
+
 
 # Create environment
 
@@ -17,7 +59,7 @@ env = gym.make('FrozenLake-v1', render_mode='rgb_array', desc=None, map_name="4x
 def transition_function(self, action):
     # perform and update
     state, reward, done, truncated, info = self.internal_step(action)
-    reward = myreward(state) # TODO you can change this line to use your custom reward function
+    reward = myreward3(state) # TODO you can change this line to use your custom reward function
     return state, reward, done, truncated, info
 
 # Transition function in gymnasium environments is called step
